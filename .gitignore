@@ -3,3 +3,5 @@ __pycache__/
 *.py[cod]
 *.sqlite3
 .DS_Store
+inkpress/__pycache__/settings.cpython-312.pyc
+articles/migrations
