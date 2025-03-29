@@ -69,6 +69,7 @@ def create_post(request):
                 return redirect("/drafts/")
     else:
         form = PostForm()
+        print("request.user:", request.user)
     return render(request, "articles/create_post.html", {"form": form})
 
 
