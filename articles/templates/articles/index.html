@@ -43,6 +43,13 @@
       padding: 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       border-radius: 4px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    /* Hover effect for thumbnails */
+    .thumbnail:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     
     /* Thumbnail title styling */
@@ -83,6 +90,7 @@
       }
     }
 </style>
+
     
 {% endblock %}
 
