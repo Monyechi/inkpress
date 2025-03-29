@@ -3,44 +3,86 @@
 {% block title %}{{ object.title }}{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-  <article class="content-section">
-    <!-- Post Title -->
-    <h1 class="article-title">{{ object.title }}</h1>
+<article class="content-section">
+  <!-- Post Title -->
+  <h1 class="article-title">{{ object.title }}</h1>
+  
+  <!-- Metadata: Author and Date -->
+  <div class="article-metadata mb-3">
+    <p>
+      <strong>{{ object.author.first_name }} {{ object.author.last_name }}</strong> - 
+      <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+    </p>
+  </div>
+  
+  <!-- Newspaper Content: 3-Column Layout -->
+  <div class="article-content">
+    <!-- Drop Cap: Wrap the first letter of content -->
+    {% if object.content %}
+      {% with first_letter=object.content|slice:":1" rest=object.content|slice:"1:" %}
+        <p>
+          <span class="drop-cap">{{ first_letter }}</span>{{ rest|safe }}
+        </p>
+      {% endwith %}
+    {% endif %}
     
-    <!-- Metadata: Author and Date -->
-    <div class="article-metadata mb-3">
-      <p>
-        <strong>{{ object.author.first_name }} {{ object.author.last_name }}</strong> - 
-        <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
-      </p>
+    <!-- Advertisement Spot -->
+    <div class="ad-spot">
+      <p>Advertisement</p>
     </div>
     
-    <!-- Post Content in 3 Columns -->
-    <div class="article-content" style="column-count: 3; column-gap: 20px;">
-      {% if object.featured_image %}
-      <img src="{{ object.featured_image.url }}" alt="{{ object.title }}" class="img-fluid mb-3 d-block mx-auto" style="max-width: 300px; max-height: 300px; break-inside: avoid;">
-      {% endif %}
-      {{ object.content|safe }}
-    </div>
-  </article>
-</div>
+    <!-- Inline Picture Example: You can manually include additional images within the content -->
+    {% if object.featured_image %}
+      <img src="{{ object.featured_image.url }}" alt="{{ object.title }}" class="img-inline">
+    {% endif %}
+  </div>
+</article>
 
 <style>
-  .article-content p {
-    margin-bottom: 1.5em;
+  /* Three Column Layout */
+  .article-content {
+      column-count: 3;
+      column-gap: 20px;
   }
-
-  /* Responsive adjustments for column count */
+  
+  /* Drop Cap Styling */
+  .drop-cap {
+      float: left;
+      font-size: 3em;
+      line-height: 1;
+      padding-right: 8px;
+      font-weight: bold;
+  }
+  
+  /* Advertisement Spot Styling */
+  .ad-spot {
+      border: 1px solid #ccc;
+      text-align: center;
+      margin: 1em 0;
+      padding: 0.5em;
+      background-color: #f9f9f9;
+      break-inside: avoid;
+  }
+  
+  /* Inline Image Styling */
+  .img-inline {
+      max-width: 300px;
+      max-height: 300px;
+      margin: 1em 0;
+      display: block;
+      break-inside: avoid;
+  }
+  
+  .article-content p {
+      margin-bottom: 1.5em;
+  }
+  
+  /* Responsive adjustments */
   @media (max-width: 768px) {
-    .article-content {
-      column-count: 1 !important;
-    }
+      .article-content { column-count: 1 !important; }
   }
   @media (min-width: 769px) and (max-width: 991px) {
-    .article-content {
-      column-count: 2 !important;
-    }
+      .article-content { column-count: 2 !important; }
   }
 </style>
 {% endblock %}

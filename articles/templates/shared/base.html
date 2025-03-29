@@ -5,21 +5,52 @@
     <title>{% block title %}InkPress{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body {
-            font-family: Georgia, serif;
-            padding: 2rem;
-            background-color: #f8f8f8;
-        }
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-            background: white;
-            padding: 2rem;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-        }
+      /* Some basic styling */
+      body { font-family: Georgia, serif; margin: 0; padding: 0; background: #f2f2f2; }
+      .navbar {
+          background: #333;
+          color: #fff;
+          padding: 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+      .navbar a { color: #fff; margin-left: 1rem; text-decoration: none; }
+      .footer {
+          background: #333;
+          color: #fff;
+          text-align: center;
+          padding: 1rem;
+          position: fixed;
+          bottom: 0;
+          width: 100%;
+      }
+      .container { padding: 2rem; margin-bottom: 4rem; }
     </style>
 </head>
 <body>
-    {% block content %}{% endblock %}
+    <header class="navbar">
+        <div class="logo"><strong>InkPress</strong></div>
+        <nav>
+            <a href="/">Home</a>
+            {% if request.user.is_authenticated %}
+                {% if request.user.is_superuser %}
+                    <a href="/posts/create/">Create Post</a>
+                {% endif %}
+                <a href="/logout/">Logout</a>
+            {% else %}
+                <a href="/login/">Login</a>
+                <a href="/signup/">Sign Up</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 InkPress. All Rights Reserved.</p>
+    </footer>
 </body>
 </html>

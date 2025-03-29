@@ -3,32 +3,28 @@ from django.views.generic import DetailView
 from .models import Post
 import traceback
 from django.http import HttpResponseServerError
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('/')
+    else:
+        form = UserCreationForm()
+    return render(request, 'shared/signup.html', {'form': form})
 
 class PostDetailView(DetailView):
     model = Post
-    template_name = 'articles/post_detail.html'
 
     def get_context_data(self, **kwargs):
-        try:
-            context = super().get_context_data(**kwargs)
-            context['title'] = self.object.title
-            context['content'] = self.object.content
-            return context
-        except Exception as e:
-            traceback.print_exc()
-            return HttpResponseServerError("An error occurred while processing the request.")
+        context = super().get_context_data(**kwargs)
+        context['title', 'content'] = self.object.title
+        return context
 
 def landing_page(request):
-    post = Post.objects.first()  
-    if not post:
-        return render(request, 'articles/post_detail.html', {
-            'object': None,
-            'title': 'No Post Available',
-            'content': 'There is no post to display yet.'
-        })
-
-    return render(request, 'articles/post_detail.html', {
-        'object': post,
-        'title': post.title,
-        'content': post.content
-    })
+    return render(request, 'articles/index.html')
