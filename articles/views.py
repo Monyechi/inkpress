@@ -11,10 +11,12 @@ from .decorators import admin_required
 from .forms import PostForm
 from django.contrib.auth.decorators import login_required
 
+
 @login_required
 def drafts(request):
     drafts = Post.objects.filter(author=request.user, submitted=False)
     return render(request, "articles/drafts.html", {"drafts": drafts})
+
 
 def signup(request):
     if request.method == "POST":
@@ -26,6 +28,7 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, "shared/signup.html", {"form": form})
+
 
 class PostDetailView(DetailView):
     model = Post
@@ -47,12 +50,24 @@ def create_post(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            post.submitted = False  # Always start as a draft
+            # Check which button was pressed
+            action = request.POST.get("action")
+            if action == "publish":
+                post.submitted = True
+            else:  # Default to draft if "Save as Draft" was pressed
+                post.submitted = False
             post.save()
-            return redirect("/drafts/")  # Redirect to drafts page
+            # Redirect based on the action
+            if post.submitted:
+                # If published, redirect to index page
+                return redirect("/")
+            else:
+                # If saved as draft, redirect to drafts page
+                return redirect("/drafts/")
     else:
         form = PostForm()
     return render(request, "articles/create_post.html", {"form": form})
+
 
 def custom_login(request):
     if request.method == "POST":
@@ -67,6 +82,7 @@ def custom_login(request):
             return render(request, "shared/login.html", {"error": error})
     else:
         return render(request, "shared/login.html")
+
 
 def custom_logout(request):
     logout(request)
