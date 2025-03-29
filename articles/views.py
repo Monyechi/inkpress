@@ -12,7 +12,6 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def drafts(request):
-    # Assuming the author should only see their own drafts
     drafts = Post.objects.filter(author=request.user, submitted=False)
     return render(request, 'articles/drafts.html', {'drafts': drafts})
 
