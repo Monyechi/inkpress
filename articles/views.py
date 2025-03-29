@@ -4,7 +4,8 @@ from .models import Post
 import traceback
 from django.http import HttpResponseServerError
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .decorators import admin_required
 from .forms import PostForm
@@ -13,41 +14,60 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def drafts(request):
     drafts = Post.objects.filter(author=request.user, submitted=False)
-    return render(request, 'articles/drafts.html', {'drafts': drafts})
-
+    return render(request, "articles/drafts.html", {"drafts": drafts})
 
 def signup(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('/')
+            return redirect("/")
     else:
         form = UserCreationForm()
-    return render(request, 'shared/signup.html', {'form': form})
+    return render(request, "shared/signup.html", {"form": form})
 
 class PostDetailView(DetailView):
     model = Post
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title', 'content'] = self.object.title
+        context["title", "content"] = self.object.title
         return context
 
+
 def landing_page(request):
-    return render(request, 'articles/index.html')
+    return render(request, "articles/index.html")
+
 
 @admin_required
 def create_post(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.submitted = False  # Always start as a draft
             post.save()
-            return redirect('/drafts/')  # Redirect to drafts page
+            return redirect("/drafts/")  # Redirect to drafts page
     else:
         form = PostForm()
-    return render(request, 'articles/create_post.html', {'form': form})
+    return render(request, "articles/create_post.html", {"form": form})
+
+def custom_login(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("/")
+        else:
+            error = "Invalid username or password."
+            return render(request, "shared/login.html", {"error": error})
+    else:
+        return render(request, "shared/login.html")
+
+def custom_logout(request):
+    logout(request)
+    return redirect("/")

@@ -5,6 +5,7 @@
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {{ form.as_p }}
-  <button type="submit">Save as Draft</button>
+  <button type="submit" name="action" value="draft">Save as Draft</button>
+  <button type="submit" name="action" value="publish">Publish</button>
 </form>
 {% endblock %}
