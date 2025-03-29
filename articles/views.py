@@ -40,7 +40,9 @@ class PostDetailView(DetailView):
 
 
 def landing_page(request):
-    return render(request, "articles/index.html")
+    # Retrieve only published posts
+    published_posts = Post.objects.filter(submitted=True)
+    return render(request, "articles/index.html", {"posts": published_posts})
 
 
 @admin_required
@@ -49,7 +51,10 @@ def create_post(request):
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
-            post.author = request.user
+            # Use the author provided in the form; if not provided, default to the logged-in user.
+            if not post.author:
+                post.author = request.user
+
             # Check which button was pressed
             action = request.POST.get("action")
             if action == "publish":
@@ -59,10 +64,8 @@ def create_post(request):
             post.save()
             # Redirect based on the action
             if post.submitted:
-                # If published, redirect to index page
                 return redirect("/")
             else:
-                # If saved as draft, redirect to drafts page
                 return redirect("/drafts/")
     else:
         form = PostForm()

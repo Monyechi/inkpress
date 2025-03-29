@@ -36,6 +36,7 @@
             {% if request.user.is_authenticated %}
                 {% if request.user.is_superuser %}
                     <a href="/posts/create/">Create Post</a>
+                    <a href="{% url 'drafts' %}">My Drafts</a>
                 {% endif %}
                 <a href="/logout/">Logout</a>
             {% else %}

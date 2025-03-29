@@ -3,86 +3,161 @@
 {% block title %}{{ object.title }}{% endblock %}
 
 {% block content %}
-<article class="content-section">
-  <!-- Post Title -->
-  <h1 class="article-title">{{ object.title }}</h1>
-  
-  <!-- Metadata: Author and Date -->
-  <div class="article-metadata mb-3">
-    <p>
-      <strong>{{ object.author.first_name }} {{ object.author.last_name }}</strong> - 
-      <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
-    </p>
-  </div>
-  
-  <!-- Newspaper Content: 3-Column Layout -->
-  <div class="article-content">
-    <!-- Drop Cap: Wrap the first letter of content -->
-    {% if object.content %}
-      {% with first_letter=object.content|slice:":1" rest=object.content|slice:"1:" %}
-        <p>
-          <span class="drop-cap">{{ first_letter }}</span>{{ rest|safe }}
-        </p>
-      {% endwith %}
-    {% endif %}
-    
-    <!-- Advertisement Spot -->
-    <div class="ad-spot">
-      <p>Advertisement</p>
+<article class="newspaper-layout">
+
+  <!-- Title and Metadata -->
+  <header>
+    <h1 class="article-title">{{ object.title }}</h1>
+    <div class="article-metadata">
+      <strong>{{ object.author.get_full_name }}</strong> ·
+      <small>{{ object.date_posted|date:"F d, Y" }}</small>
     </div>
+  </header>
+
+  <div class="content-ad-wrapper">
     
-    <!-- Inline Picture Example: You can manually include additional images within the content -->
-    {% if object.featured_image %}
-      <img src="{{ object.featured_image.url }}" alt="{{ object.title }}" class="img-inline">
-    {% endif %}
+    <!-- Main Article Area -->
+    <div class="text-columns">
+      {% if object.featured_image %}
+        <img src="{{ object.featured_image.url }}" alt="{{ object.title }}" class="featured-image">
+      {% endif %}
+
+      <div class="article-body dropcap">
+        {{ object.content|linebreaks }}
+      </div>
+    </div>
+
+    <!-- Sidebar Advertisement -->
+    <aside class="ad-spot">
+      <div class="ad-box">
+        <p class="ad-label">ADVERTISEMENT</p>
+      </div>
+    </aside>
   </div>
+
 </article>
 
 <style>
-  /* Three Column Layout */
-  .article-content {
-      column-count: 3;
-      column-gap: 20px;
+/* Ensure the HTML and body take up the full viewport */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Layout Container: reduced padding and set max-height to viewport height */
+.newspaper-layout {
+  padding: 1rem;
+  max-height: 100vh;
+  overflow: hidden;
+  font-family: 'Georgia', serif;
+  line-height: 1.5;
+  color: #222;
+  background-color: #fff;
+}
+
+/* Article Title */
+.article-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+/* Metadata under title */
+.article-metadata {
+  color: #666;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Wrapper for main content and advertisement */
+.content-ad-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  /* Ensure the wrapper fits within the viewport */
+  max-height: calc(100vh - 100px);
+}
+
+/* Main Content Area: three columns with reduced gap */
+.text-columns {
+  flex: 1;
+  column-count: 3;
+  column-gap: 1rem;
+  text-align: justify;
+  overflow: hidden;
+}
+
+/* Featured Image: larger but reduced height to fit the page */
+.featured-image {
+  width: 100%;
+  max-width: 100%;
+  height: 250px;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  break-inside: avoid;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Paragraphs and drop cap */
+.article-body p {
+  margin-bottom: 1em;
+  /* Adjust font-size if needed */
+  font-size: 0.95rem;
+}
+.dropcap p:first-of-type::first-letter {
+  float: left;
+  font-size: 3em;
+  line-height: 1;
+  padding-right: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Advertisement Sidebar: reduced dimensions */
+.ad-spot {
+  width: 180px;
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ad-box {
+  width: 100%;
+  height: 100%;
+  border: 2px dashed #ccc;
+  background-color: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.ad-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-weight: bold;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: #555;
+}
+
+/* Responsive Behavior */
+@media (max-width: 992px) {
+  .text-columns {
+    column-count: 2;
   }
-  
-  /* Drop Cap Styling */
-  .drop-cap {
-      float: left;
-      font-size: 3em;
-      line-height: 1;
-      padding-right: 8px;
-      font-weight: bold;
-  }
-  
-  /* Advertisement Spot Styling */
   .ad-spot {
-      border: 1px solid #ccc;
-      text-align: center;
-      margin: 1em 0;
-      padding: 0.5em;
-      background-color: #f9f9f9;
-      break-inside: avoid;
+    display: none;
   }
-  
-  /* Inline Image Styling */
-  .img-inline {
-      max-width: 300px;
-      max-height: 300px;
-      margin: 1em 0;
-      display: block;
-      break-inside: avoid;
+}
+
+@media (max-width: 768px) {
+  .text-columns {
+    column-count: 1;
   }
-  
-  .article-content p {
-      margin-bottom: 1.5em;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-      .article-content { column-count: 1 !important; }
-  }
-  @media (min-width: 769px) and (max-width: 991px) {
-      .article-content { column-count: 2 !important; }
-  }
+}
 </style>
 {% endblock %}
